@@ -1,0 +1,89 @@
+# vim: set syntax=javascript
+
+# Test1 kea-dhcp config
+
+{
+
+  "Dhcp4" : {
+    # interfaces
+    "interfaces-config": {
+      "interfaces": ["eth1"],
+      "dhcp-socket-type": "raw"
+    },
+
+    # dhcp parameters
+    "valid-lifetime": 4000,
+    "renew-timer": 1000,
+    "rebind-timer": 2000,
+
+    "shared-networks": [
+      {
+        "name": "infra-net",
+        "subnet4": [
+          # Default subnet
+          {
+              "subnet": "10.47.0.0/24",
+              "pools": [
+                { "pool": "10.47.0.10 - 10.47.0.254" }
+              ]
+          },
+
+          # Reserved subnet
+          {
+            "subnet": "10.47.1.0/24",
+            "pools": [
+              { "pool": "10.47.1.10 - 10.47.1.254" }
+            ],
+            "reservations": [
+              {
+                "hw-address": "74:00:00:00:00:01",
+                "ip-address": "10.47.1.10"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+
+    "lease-database" : {
+      "type": "postgresql",
+      "name": "kea",
+      "host": "pgdb",
+      "user": "murphy",
+      "password": "muffins"
+    }
+  },
+
+  "Logging":
+  {
+    "loggers": [
+      {
+        "name": "kea-dhcp4",
+          "output_options": [
+          {
+            "output": "/usr/local/var/log/kea-dhcp4.log"
+
+              // This governs whether the log output is flushed to disk after
+              // every write.
+              // "flush": false,
+
+              // This specifies the maximum size of the file before it is
+              // rotated.
+              // "maxsize": 1048576,
+
+              // This specifies the maximum number of rotated files to keep.
+              // "maxver": 8
+          }
+        ],
+        // This specifies the severity of log messages to keep. Supported values
+        // are: FATAL, ERROR, WARN, INFO, DEBUG
+        "severity": "DEBUG",
+
+        // If DEBUG level is specified, this value is used. 0 is least verbose,
+        // 99 is most verbose. Be cautious, Kea can generate lots and lots
+        // of logs if told to do so.
+        "debuglevel": 99
+      }
+    ]
+  }
+}

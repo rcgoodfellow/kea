@@ -1,0 +1,5 @@
+FROM fedora:27
+
+RUN dnf install -y iproute dhcp-client
+
+CMD ip addr flush eth0 && dhclient eth0 && ip addr

@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  kea:
+    image: kea:latest
+    networks:
+      default:
+      infra:
+        ipv4_address: 10.47.0.2
+    depends_on:
+      - pgdb
+    volumes:
+      - "./runkea1.sh:/kea/runkea1.sh:Z"
+      - "./dhcp4-config1:/usr/local/etc/kea/kea-dhcp4.conf:Z"
+      - "./kea-supervisord.conf:/usr/etc/supervisord.conf:Z"
+    command: "/kea/runkea1.sh"
+
+  pgdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: muffins
+      POSTGRES_USER: murphy
+
+  node1:
+    build: 
+      context: .
+      dockerfile: f27.dock
+    networks:
+      - infra
+    mac_address: "74:00:00:00:00:01"
+    depends_on:
+      - kea
+    cap_add:
+      - NET_ADMIN
+
+  node2:
+    build: 
+      context: .
+      dockerfile: f27.dock
+    networks:
+      - infra
+    mac_address: "74:00:00:00:00:02"
+    depends_on:
+      - kea
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  infra:
+    ipam:
+      config:
+        - subnet: 10.47.0.0/16
